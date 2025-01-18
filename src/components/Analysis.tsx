@@ -25,7 +25,6 @@ export const Analysis = ({ matchScore, foundSkills, missingSkills, isVisible }: 
           <Progress 
             value={matchScore} 
             className="h-2 bg-gray-100" 
-            indicatorClassName="bg-blue-600"
           />
         </div>
         
