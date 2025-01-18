@@ -2,13 +2,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
-export const JobDescription = ({ onAnalyze }: { onAnalyze: (text: string) => void }) => {
+export const JobDescription = ({ 
+  onAnalyze 
+}: { 
+  onAnalyze: (text: string) => Promise<void> 
+}) => {
   const [description, setDescription] = useState("");
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const { toast } = useToast();
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (description.trim().length < 50) {
       toast({
         title: "Invalid Input",
@@ -17,11 +23,13 @@ export const JobDescription = ({ onAnalyze }: { onAnalyze: (text: string) => voi
       });
       return;
     }
-    onAnalyze(description);
-    toast({
-      title: "Analysis Started",
-      description: "Analyzing your resume against the job description...",
-    });
+    
+    setIsAnalyzing(true);
+    try {
+      await onAnalyze(description);
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   return (
@@ -39,9 +47,16 @@ export const JobDescription = ({ onAnalyze }: { onAnalyze: (text: string) => voi
         <Button 
           className="w-full" 
           onClick={handleAnalyze}
-          disabled={description.trim().length < 50}
+          disabled={description.trim().length < 50 || isAnalyzing}
         >
-          Analyze Match
+          {isAnalyzing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Analyzing...
+            </>
+          ) : (
+            'Analyze Match'
+          )}
         </Button>
       </CardContent>
     </Card>
